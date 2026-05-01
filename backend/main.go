@@ -6,9 +6,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 
-	db "tu-modulo/db"
-	"tu-modulo/handlers"
+	"proy2-bck/db"
+	"proy2-bck/handlers"
 )
 
 func main() {
@@ -17,11 +18,12 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-
-	r.Options("/*", func(w http.ResponseWriter, r *http.Request) {
-		enableCors(w)
-		w.WriteHeader(http.StatusOK)
-	})
+	r.Use(middleware.Recoverer)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type"},
+	}))
 
 	r.Get("/productos", handlers.ListarProductos)
 	r.Get("/productos/{id}", handlers.VerProducto)
@@ -29,22 +31,25 @@ func main() {
 	r.Put("/productos/{id}", handlers.EditarProducto)
 	r.Delete("/productos/{id}", handlers.EliminarProducto)
 
-	r.Post("/ventas", handlers.CrearVenta)
+	r.Get("/ramos", handlers.ListarRamos)
+	r.Get("/ramos/{id}", handlers.VerRamo)
+	r.Post("/ramos", handlers.CrearRamo)
+	r.Delete("/ramos/{id}", handlers.EliminarRamo)
+
 	r.Get("/ventas", handlers.ListarVentas)
-	r.PUT("/ventas/{id}", handlers.EditarVenta)
-	r.DELETE("/ventas/{id}", handlers.EliminarVenta)
+	r.Get("/ventas/{id}", handlers.VerVenta)
+	r.Post("/ventas", handlers.CrearVenta)
+	r.Delete("/ventas/{id}", handlers.EliminarVenta)
+
+	r.Get("/clientes", handlers.ListarClientes)
+	r.Get("/empleados", handlers.ListarEmpleados)
+	r.Get("/proveedores", handlers.ListarProveedores)
 
 	r.Get("/reportes/ventas-por-empleado", handlers.VentasPorEmpleado)
 	r.Get("/reportes/productos-en-ramos", handlers.ProductosEnRamos)
 	r.Get("/reportes/inventario", handlers.Inventario)
 	r.Get("/reportes/vista-ventas", handlers.VistaVentas)
 
-	log.Println("Servidor corriendo en http://localhost:8000")
+	log.Println("Servidor corriendo en http://0.0.0.0:8000")
 	log.Fatal(http.ListenAndServe(":8000", r))
-}
-
-func enableCors(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }
