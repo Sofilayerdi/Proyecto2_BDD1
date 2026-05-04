@@ -12,20 +12,34 @@ services:
     ports:
       - "5435:5432"
     volumes:
+      - db_data:/var/lib/postgresql/data
       - ./db/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+      - ./db/views.sql:/docker-entrypoint-initdb.d/views.sql
       - ./db/registros.sql:/docker-entrypoint-initdb.d/registros.sql
 
   backend:
-      build: ./backend
-      container_name: bck_proyecto2
-      restart: always
-      ports:
-        - "8000:8000"
-      environment:
-        DB_HOST: db
-        DB_PORT: 5432
-        DB_USER: ${DB_USER}
-        DB_PASSWORD: ${DB_PASSWORD}
-        DB_NAME: ${DB_NAME}
-      depends_on:
-        - db
+    build: ./backend
+    container_name: bck_proyecto2
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: frt_proyecto2
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:

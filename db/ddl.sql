@@ -110,3 +110,7 @@ CREATE TABLE ramo_venta (
         REFERENCES ramo(id_ramo)
         ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+CREATE INDEX idx_venta_fecha ON venta(fecha);
+
+CREATE INDEX idx_producto_categoria ON producto(id_categoria);
