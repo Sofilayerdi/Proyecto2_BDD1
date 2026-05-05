@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react'
-import { api } from '../api'
 import { useToast } from '../components/useToast'
 import './Reportes.css'
 
+const URL = 'http://localhost:8000'
+
 const TABS = [
   { id: 'empleados', label: 'Ventas por empleado' },
-  { id: 'productos', label: 'Productos más vendidos' },
+  { id: 'productos',  label: 'Productos más vendidos' },
   { id: 'inventario', label: 'Stock bajo' },
-  { id: 'ventas', label: 'Historial de ventas' },
+  { id: 'ventas',     label: 'Historial de ventas' },
 ]
+
+const ENDPOINTS = {
+  empleados:  '/reportes/ventas-por-empleado',
+  productos:  '/reportes/productos-en-ramos',
+  inventario: '/reportes/inventario',
+  ventas:     '/reportes/vista-ventas',
+}
 
 export default function Reportes() {
   const [tab, setTab] = useState('empleados')
@@ -19,22 +27,16 @@ export default function Reportes() {
   useEffect(() => {
     setData([])
     setLoading(true)
-    const loaders = {
-      empleados: api.getVentasPorEmpleado,
-      productos: api.getProductosEnRamos,
-      inventario: api.getInventarioBajo,
-      ventas: api.getVistaVentas,
-    }
-    loaders[tab]()
+    fetch(`${URL}${ENDPOINTS[tab]}`)
+      .then(res => res.json())
       .then(setData)
-      .catch(err => showToast(err.message, 'error'))
+      .catch(() => showToast('Error cargando reporte', 'error'))
       .finally(() => setLoading(false))
   }, [tab])
 
   return (
     <div className="reportes-page">
       <Toast />
-
       <div className="reportes-header">
         <h1>Reportes</h1>
         <p className="subtitle">Análisis de ventas e inventario</p>
@@ -42,23 +44,18 @@ export default function Reportes() {
 
       <div className="reporte-tabs">
         {TABS.map(t => (
-          <button
-            key={t.id}
-            className={`tab-btn ${tab === t.id ? 'active' : ''}`}
-            onClick={() => setTab(t.id)}
-          >
+          <button key={t.id} className={`tab-btn ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
             {t.label}
           </button>
         ))}
       </div>
 
       <div className="reporte-content">
-        {/* Descripción de la query para cada reporte */}
         <div className="query-badge">
-          {tab === 'empleados' && <span>Vista SQL · GROUP BY + HAVING + SUM · JOIN empleado ↔ venta</span>}
-          {tab === 'productos' && <span>CTE (WITH) · JOIN ramo_producto → venta → producto → proveedor</span>}
-          {tab === 'inventario' && <span>Subquery correlacionado EXISTS · Productos bajo el promedio de stock</span>}
-          {tab === 'ventas' && <span>Vista SQL · JOIN venta ↔ cliente ↔ empleado · ORDER BY fecha</span>}
+          {tab === 'empleados'  && <span>Vista SQL · GROUP BY + HAVING + SUM · JOIN empleado ↔ venta</span>}
+          {tab === 'productos'  && <span>CTE (WITH vendidos AS ...) · JOIN ramo_producto → venta → producto → proveedor</span>}
+          {tab === 'inventario' && <span>Subquery EXISTS · Productos con stock menor al promedio general</span>}
+          {tab === 'ventas'     && <span>Vista SQL · JOIN venta ↔ cliente ↔ empleado · ORDER BY fecha DESC</span>}
         </div>
 
         {loading ? (
@@ -67,10 +64,10 @@ export default function Reportes() {
           <div className="empty-reporte">Sin datos disponibles</div>
         ) : (
           <>
-            {tab === 'empleados' && <TablaEmpleados data={data} />}
-            {tab === 'productos' && <TablaProductos data={data} />}
+            {tab === 'empleados'  && <TablaEmpleados data={data} />}
+            {tab === 'productos'  && <TablaProductos data={data} />}
             {tab === 'inventario' && <TablaInventario data={data} />}
-            {tab === 'ventas' && <TablaVentas data={data} />}
+            {tab === 'ventas'     && <TablaVentas data={data} />}
           </>
         )}
       </div>
@@ -79,33 +76,31 @@ export default function Reportes() {
 }
 
 function TablaEmpleados({ data }) {
-  const maxIngresos = Math.max(...data.map(d => d.ingresos))
+  const max = Math.max(...data.map(d => d.ingresos))
   return (
-    <div>
-      <div className="reporte-cards">
-        {data.map((e, i) => (
-          <div key={i} className="emp-card">
-            <div className="emp-avatar">{e.empleado.charAt(0)}</div>
-            <div className="emp-info">
-              <p className="emp-nombre">{e.empleado}</p>
-              <p className="emp-rol">{e.rol}</p>
+    <div className="reporte-cards">
+      {data.map((e, i) => (
+        <div key={i} className="emp-card">
+          <div className="emp-avatar">{e.empleado.charAt(0)}</div>
+          <div className="emp-info">
+            <p className="emp-nombre">{e.empleado}</p>
+            <p className="emp-rol">{e.rol}</p>
+          </div>
+          <div className="emp-stats">
+            <div className="stat">
+              <span className="stat-val">{e.total_ventas}</span>
+              <span className="stat-lbl">ventas</span>
             </div>
-            <div className="emp-stats">
-              <div className="stat">
-                <span className="stat-val">{e.total_ventas}</span>
-                <span className="stat-lbl">ventas</span>
-              </div>
-              <div className="stat">
-                <span className="stat-val" style={{ color: 'var(--moss)' }}>Q{Number(e.ingresos).toFixed(0)}</span>
-                <span className="stat-lbl">ingresos</span>
-              </div>
-            </div>
-            <div className="emp-bar-wrap">
-              <div className="emp-bar" style={{ width: `${(e.ingresos / maxIngresos) * 100}%` }} />
+            <div className="stat">
+              <span className="stat-val" style={{ color: 'var(--moss)' }}>Q{Number(e.ingresos).toFixed(0)}</span>
+              <span className="stat-lbl">ingresos</span>
             </div>
           </div>
-        ))}
-      </div>
+          <div className="emp-bar-wrap">
+            <div className="emp-bar" style={{ width: `${(e.ingresos / max) * 100}%` }} />
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
@@ -115,13 +110,7 @@ function TablaProductos({ data }) {
   return (
     <table className="reporte-table">
       <thead>
-        <tr>
-          <th>#</th>
-          <th>Producto</th>
-          <th>Categoría</th>
-          <th>Proveedor</th>
-          <th>Unidades vendidas</th>
-        </tr>
+        <tr><th>#</th><th>Producto</th><th>Categoría</th><th>Proveedor</th><th>Unidades vendidas</th></tr>
       </thead>
       <tbody>
         {data.map((p, i) => (
@@ -146,18 +135,10 @@ function TablaProductos({ data }) {
 function TablaInventario({ data }) {
   return (
     <div>
-      <p className="reporte-note">
-        Productos con stock por debajo del promedio general — requieren reabastecimiento.
-      </p>
+      <p className="reporte-note">Productos con stock por debajo del promedio general.</p>
       <table className="reporte-table">
         <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th>Proveedor</th>
-            <th>Stock actual</th>
-            <th>Precio</th>
-          </tr>
+          <tr><th>Producto</th><th>Categoría</th><th>Proveedor</th><th>Stock actual</th><th>Precio</th></tr>
         </thead>
         <tbody>
           {data.map((p, i) => (
@@ -183,13 +164,7 @@ function TablaVentas({ data }) {
   return (
     <table className="reporte-table">
       <thead>
-        <tr>
-          <th>#</th>
-          <th>Fecha</th>
-          <th>Cliente</th>
-          <th>Empleado</th>
-          <th>Total</th>
-        </tr>
+        <tr><th>#</th><th>Fecha</th><th>Cliente</th><th>Empleado</th><th>Total</th></tr>
       </thead>
       <tbody>
         {data.map((v, i) => (

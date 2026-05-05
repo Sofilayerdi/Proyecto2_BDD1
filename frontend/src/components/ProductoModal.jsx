@@ -1,27 +1,28 @@
 import { useState, useEffect } from 'react'
-import { api } from '../api'
 
+const URL = 'http://localhost:8000'
 const CATEGORIAS = ['flor', 'follaje', 'liston', 'papel']
 
 export default function ProductoModal({ producto, onClose, onSaved }) {
   const esEdicion = Boolean(producto)
-  const [form, setForm] = useState({
-    nombre: '', categoria: 'flor', id_proveedor: '',
-    cantidad: '', precio: ''
-  })
+  const [form, setForm] = useState({ nombre: '', categoria: 'flor', id_proveedor: '', cantidad: '', precio: '' })
   const [proveedores, setProveedores] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    api.getProveedores().then(setProveedores).catch(() => {})
+    fetch(`${URL}/proveedores`)
+      .then(res => res.json())
+      .then(setProveedores)
+      .catch(() => {})
+
     if (producto) {
       setForm({
-        nombre: producto.nombre,
-        categoria: producto.categoria,
+        nombre:       producto.nombre,
+        categoria:    producto.categoria,
         id_proveedor: producto.id_proveedor,
-        cantidad: producto.cantidad,
-        precio: producto.precio,
+        cantidad:     producto.cantidad,
+        precio:       producto.precio,
       })
     }
   }, [producto])
@@ -31,28 +32,31 @@ export default function ProductoModal({ producto, onClose, onSaved }) {
     setError('')
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = e => {
     e.preventDefault()
     setLoading(true)
     setError('')
-    try {
-      const payload = {
-        ...form,
-        id_proveedor: parseInt(form.id_proveedor),
-        cantidad: parseInt(form.cantidad),
-        precio: parseFloat(form.precio),
-      }
-      if (esEdicion) {
-        await api.editarProducto(producto.id_producto, payload)
-      } else {
-        await api.crearProducto(payload)
-      }
-      onSaved()
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
+
+    const payload = {
+      ...form,
+      id_proveedor: parseInt(form.id_proveedor),
+      cantidad:     parseInt(form.cantidad),
+      precio:       parseFloat(form.precio),
     }
+
+    const endpoint = esEdicion ? `${URL}/productos/${producto.id_producto}` : `${URL}/productos`
+    const method   = esEdicion ? 'PUT' : 'POST'
+
+    fetch(endpoint, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(res => {
+        if (res.ok) {
+          onSaved()
+        } else {
+          return res.text().then(msg => setError(msg))
+        }
+      })
+      .catch(() => setError('Error de conexión'))
+      .finally(() => setLoading(false))
   }
 
   return (

@@ -1,54 +1,55 @@
 import { useState, useEffect, useCallback } from 'react'
-import { api } from '../api'
 import ProductoModal from '../components/ProductoModal'
 import CompraModal from '../components/CompraModal'
 import { useToast } from '../components/useToast'
 import './Productos.css'
 
+const URL = 'http://localhost:8000'
+
 const CATEGORIAS = ['todos', 'flor', 'follaje', 'liston', 'papel']
 
 const CAT_COLORS = {
-  flor: { bg: '#fdf0f4', text: '#8b3a52', border: '#e8b0c0' },
+  flor:    { bg: '#fdf0f4', text: '#8b3a52', border: '#e8b0c0' },
   follaje: { bg: '#f0f5f0', text: '#3d5a3e', border: '#a8c8a8' },
-  liston: { bg: '#f5f3e8', text: '#6b5a2e', border: '#d4c080' },
-  papel: { bg: '#f0f2f5', text: '#3a4a6b', border: '#a0b0d0' },
+  liston:  { bg: '#f5f3e8', text: '#6b5a2e', border: '#d4c080' },
+  papel:   { bg: '#f0f2f5', text: '#3a4a6b', border: '#a0b0d0' },
 }
 
 export default function Productos() {
   const [productos, setProductos] = useState([])
   const [filtro, setFiltro] = useState('todos')
   const [loading, setLoading] = useState(true)
-  const [modalProducto, setModalProducto] = useState(null) // null = cerrado, false = nuevo, obj = editar
   const [productoEditar, setProductoEditar] = useState(null)
-  const [carrito, setCarrito] = useState([]) // [{id_producto, nombre, precio, cantidad}]
+  const [showModal, setShowModal] = useState(false)
+  const [carrito, setCarrito] = useState([])
   const [showCarrito, setShowCarrito] = useState(false)
   const [showCompra, setShowCompra] = useState(false)
   const { showToast, Toast } = useToast()
 
-  const cargarProductos = useCallback(async () => {
+  const cargarProductos = useCallback(() => {
     setLoading(true)
-    try {
-      const params = filtro !== 'todos' ? { categoria: filtro, limit: 100 } : { limit: 100 }
-      const data = await api.getProductos(params)
-      setProductos(data)
-    } catch {
-      showToast('Error cargando productos', 'error')
-    } finally {
-      setLoading(false)
-    }
+    const query = filtro !== 'todos' ? `?categoria=${filtro}&limit=100` : '?limit=100'
+    fetch(`${URL}/productos${query}`)
+      .then(res => res.json())
+      .then(data => setProductos(data))
+      .catch(() => showToast('Error cargando productos', 'error'))
+      .finally(() => setLoading(false))
   }, [filtro])
 
   useEffect(() => { cargarProductos() }, [cargarProductos])
 
-  const eliminar = async (id) => {
+  const eliminar = (id) => {
     if (!confirm('¿Eliminar este producto?')) return
-    try {
-      await api.eliminarProducto(id)
-      showToast('Producto eliminado')
-      cargarProductos()
-    } catch (err) {
-      showToast(err.message, 'error')
-    }
+    fetch(`${URL}/productos/${id}`, { method: 'DELETE' })
+      .then(res => {
+        if (res.ok) {
+          showToast('Producto eliminado')
+          cargarProductos()
+        } else {
+          return res.text().then(msg => showToast(msg, 'error'))
+        }
+      })
+      .catch(() => showToast('Error al eliminar', 'error'))
   }
 
   const agregarAlCarrito = (producto) => {
@@ -59,25 +60,21 @@ export default function Productos() {
           showToast('Stock insuficiente', 'error')
           return c
         }
-        return c.map(i => i.id_producto === producto.id_producto
-          ? { ...i, cantidad: i.cantidad + 1 } : i)
+        return c.map(i => i.id_producto === producto.id_producto ? { ...i, cantidad: i.cantidad + 1 } : i)
       }
-      if (producto.cantidad === 0) {
-        showToast('Sin stock disponible', 'error')
-        return c
-      }
+      if (producto.cantidad === 0) { showToast('Sin stock disponible', 'error'); return c }
       return [...c, { ...producto, cantidad: 1 }]
     })
     showToast(`${producto.nombre} agregado al ramo`)
   }
 
   const quitarDelCarrito = (id) => setCarrito(c => c.filter(i => i.id_producto !== id))
+
   const cambiarCantidad = (id, delta) => {
     setCarrito(c => c.map(i => {
       if (i.id_producto !== id) return i
       const nueva = i.cantidad + delta
-      if (nueva <= 0) return null
-      return { ...i, cantidad: nueva }
+      return nueva <= 0 ? null : { ...i, cantidad: nueva }
     }).filter(Boolean))
   }
 
@@ -87,31 +84,24 @@ export default function Productos() {
     <div className="productos-page">
       <Toast />
 
-      {/* Header */}
       <div className="productos-header">
         <div>
           <h1>Inventario</h1>
           <p className="subtitle">Gestión de productos y ventas</p>
         </div>
-        <button className="btn btn-primary" onClick={() => { setProductoEditar(null); setModalProducto(true) }}>
+        <button className="btn btn-primary" onClick={() => { setProductoEditar(null); setShowModal(true) }}>
           + Nuevo producto
         </button>
       </div>
 
-      {/* Filtros */}
       <div className="filtros">
         {CATEGORIAS.map(cat => (
-          <button
-            key={cat}
-            className={`filtro-btn ${filtro === cat ? 'active' : ''}`}
-            onClick={() => setFiltro(cat)}
-          >
+          <button key={cat} className={`filtro-btn ${filtro === cat ? 'active' : ''}`} onClick={() => setFiltro(cat)}>
             {cat === 'todos' ? 'Todos' : cat.charAt(0).toUpperCase() + cat.slice(1)}
           </button>
         ))}
       </div>
 
-      {/* Grid de productos */}
       {loading ? (
         <div className="spinner">Cargando…</div>
       ) : productos.length === 0 ? (
@@ -128,12 +118,9 @@ export default function Productos() {
                     {p.categoria}
                   </span>
                   {p.cantidad <= 20 && (
-                    <span className="stock-warn">
-                      {p.cantidad === 0 ? 'Sin stock' : `⚠ ${p.cantidad} uds`}
-                    </span>
+                    <span className="stock-warn">{p.cantidad === 0 ? 'Sin stock' : `⚠ ${p.cantidad} uds`}</span>
                   )}
                 </div>
-
                 <div className="card-body">
                   <h3 className="prod-nombre">{p.nombre}</h3>
                   <p className="prod-proveedor">{p.proveedor}</p>
@@ -142,7 +129,6 @@ export default function Productos() {
                     <span className="prod-stock">{p.cantidad} en stock</span>
                   </div>
                 </div>
-
                 <div className="card-actions">
                   <button
                     className={`btn-carrito ${enCarrito ? 'en-carrito' : ''}`}
@@ -152,12 +138,8 @@ export default function Productos() {
                     {enCarrito ? `En ramo (${enCarrito.cantidad})` : '+ Agregar al ramo'}
                   </button>
                   <div className="card-edit-actions">
-                    <button className="btn btn-secondary btn-sm" onClick={() => { setProductoEditar(p); setModalProducto(true) }}>
-                      Editar
-                    </button>
-                    <button className="btn btn-danger btn-sm" onClick={() => eliminar(p.id_producto)}>
-                      Eliminar
-                    </button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setProductoEditar(p); setShowModal(true) }}>Editar</button>
+                    <button className="btn btn-danger btn-sm" onClick={() => eliminar(p.id_producto)}>Eliminar</button>
                   </div>
                 </div>
               </div>
@@ -166,12 +148,11 @@ export default function Productos() {
         </div>
       )}
 
-      {/* Carrito flotante */}
       {carrito.length > 0 && (
         <div className="carrito-fab">
           <button className="carrito-toggle" onClick={() => setShowCarrito(s => !s)}>
             <span className="carrito-icon">🌿</span>
-            <span className="carrito-count">{carrito.length} producto{carrito.length > 1 ? 's' : ''}</span>
+            <span>{carrito.length} producto{carrito.length > 1 ? 's' : ''}</span>
             <span className="carrito-total">Q{totalCarrito.toFixed(2)}</span>
           </button>
 
@@ -202,11 +183,8 @@ export default function Productos() {
                   <span>Total</span>
                   <span>Q{totalCarrito.toFixed(2)}</span>
                 </div>
-                <button
-                  className="btn btn-gold"
-                  style={{ width: '100%', justifyContent: 'center' }}
-                  onClick={() => { setShowCarrito(false); setShowCompra(true) }}
-                >
+                <button className="btn btn-gold" style={{ width: '100%' }}
+                  onClick={() => { setShowCarrito(false); setShowCompra(true) }}>
                   Comprar
                 </button>
               </div>
@@ -215,13 +193,12 @@ export default function Productos() {
         </div>
       )}
 
-      {/* Modales */}
-      {modalProducto && (
+      {showModal && (
         <ProductoModal
           producto={productoEditar}
-          onClose={() => setModalProducto(false)}
+          onClose={() => setShowModal(false)}
           onSaved={() => {
-            setModalProducto(false)
+            setShowModal(false)
             cargarProductos()
             showToast(productoEditar ? 'Producto actualizado' : 'Producto creado')
           }}

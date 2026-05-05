@@ -35,7 +35,6 @@ func ListarClientes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-
 	var lista []Cliente
 	for rows.Next() {
 		var c Cliente
@@ -56,7 +55,6 @@ func ListarEmpleados(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-
 	var lista []Empleado
 	for rows.Next() {
 		var e Empleado
@@ -77,7 +75,6 @@ func ListarProveedores(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-
 	var lista []Proveedor
 	for rows.Next() {
 		var p Proveedor
