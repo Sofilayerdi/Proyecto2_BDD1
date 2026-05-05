@@ -1,0 +1,15 @@
+.producto-error {
+  background: #fff0f3;
+  border: 1px solid #f0b0bc;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--error);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.producto-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}

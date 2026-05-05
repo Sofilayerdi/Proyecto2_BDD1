@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import './CompraModal.css'
 
 const URL = 'http://localhost:8000'
 
@@ -40,7 +41,6 @@ export default function CompraModal({ carrito, onClose, onComprado }) {
     setLoading(true)
     setError('')
 
-    // 1. Crear el ramo
     fetch(`${URL}/ramos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -52,7 +52,6 @@ export default function CompraModal({ carrito, onClose, onComprado }) {
         if (!res.ok) return res.text().then(msg => { throw new Error(msg) })
         return res.json()
       })
-      // 2. Crear la venta con ese ramo
       .then(ramo => fetch(`${URL}/ventas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -76,22 +75,17 @@ export default function CompraModal({ carrito, onClose, onComprado }) {
       <div className="modal">
         <h2>Confirmar compra</h2>
 
-        {/* Resumen del ramo */}
-        <div style={{ background: 'var(--cream)', borderRadius: 'var(--radius-sm)', padding: '14px 16px', marginBottom: 20 }}>
-          <p style={{ fontSize: 11, color: 'var(--bark-mid)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-            Resumen del ramo
-          </p>
+        <div className="compra-resumen">
+          <p className="compra-resumen-title">🌿 Resumen del ramo</p>
           {carrito.map(item => (
-            <div key={item.id_producto} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--cream-dark)' }}>
+            <div key={item.id_producto} className="compra-resumen-item">
               <span>{item.nombre} × {item.cantidad}</span>
-              <span style={{ color: 'var(--moss)' }}>Q{(item.precio * item.cantidad).toFixed(2)}</span>
+              <span>Q{(item.precio * item.cantidad).toFixed(2)}</span>
             </div>
           ))}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontWeight: 500 }}>
-            <span>Total</span>
-            <span style={{ color: 'var(--moss-dark)', fontFamily: 'var(--font-display)', fontSize: 20 }}>
-              Q{total.toFixed(2)}
-            </span>
+          <div className="compra-total">
+            <span className="compra-total-label">Total</span>
+            <span className="compra-total-amount">Q{total.toFixed(2)}</span>
           </div>
         </div>
 
@@ -120,7 +114,7 @@ export default function CompraModal({ carrito, onClose, onComprado }) {
           <input type="date" name="fecha" value={form.fecha} onChange={handleChange} />
         </div>
 
-        {error && <p style={{ color: 'var(--error)', fontSize: 13, marginBottom: 8 }}>{error}</p>}
+        {error && <div className="compra-error">{error}</div>}
 
         <div className="modal-actions">
           <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>

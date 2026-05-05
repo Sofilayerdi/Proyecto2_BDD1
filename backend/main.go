@@ -45,10 +45,8 @@ func main() {
 	r.Get("/empleados", handlers.ListarEmpleados)
 	r.Get("/proveedores", handlers.ListarProveedores)
 
-	r.Get("/reportes/ventas-por-empleado", handlers.VentasPorEmpleado)
-	r.Get("/reportes/productos-en-ramos", handlers.ProductosEnRamos)
-	r.Get("/reportes/inventario", handlers.Inventario)
-	r.Get("/reportes/vista-ventas", handlers.VistaVentas)
+	r.Get("/reportes/ventas-mensuales", handlers.VentasMensuales)
+	r.Get("/reportes/top-productos", handlers.TopProductosVendidos)
 
 	log.Println("Servidor corriendo en http://0.0.0.0:8000")
 	log.Fatal(http.ListenAndServe(":8000", r))

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import './ProductoModal.css'
 
 const URL = 'http://localhost:8000'
 const CATEGORIAS = ['flor', 'follaje', 'liston', 'papel']
@@ -63,17 +64,24 @@ export default function ProductoModal({ producto, onClose, onSaved }) {
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <h2>{esEdicion ? 'Editar producto' : 'Nuevo producto'}</h2>
+
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label>Nombre</label>
-            <input name="nombre" value={form.nombre} onChange={handleChange} required />
+            <input name="nombre" value={form.nombre} onChange={handleChange} placeholder="Ej: Rosa roja, Tulipán..." required />
           </div>
+
           <div className="field">
             <label>Categoría</label>
             <select name="categoria" value={form.categoria} onChange={handleChange}>
-              {CATEGORIAS.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+              {CATEGORIAS.map(c => (
+                <option key={c} value={c}>
+                  {c.charAt(0).toUpperCase() + c.slice(1)}
+                </option>
+              ))}
             </select>
           </div>
+
           <div className="field">
             <label>Proveedor</label>
             <select name="id_proveedor" value={form.id_proveedor} onChange={handleChange} required>
@@ -83,7 +91,8 @@ export default function ProductoModal({ producto, onClose, onSaved }) {
               ))}
             </select>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+
+          <div className="producto-grid-2">
             <div className="field">
               <label>Cantidad</label>
               <input name="cantidad" type="number" min="0" value={form.cantidad} onChange={handleChange} required />
@@ -93,7 +102,9 @@ export default function ProductoModal({ producto, onClose, onSaved }) {
               <input name="precio" type="number" min="0" step="0.01" value={form.precio} onChange={handleChange} required />
             </div>
           </div>
-          {error && <p style={{ color: 'var(--error)', fontSize: 13, marginBottom: 8 }}>{error}</p>}
+
+          {error && <div className="producto-error">{error}</div>}
+
           <div className="modal-actions">
             <button type="button" className="btn btn-secondary" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>

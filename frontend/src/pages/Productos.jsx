@@ -9,10 +9,10 @@ const URL = 'http://localhost:8000'
 const CATEGORIAS = ['todos', 'flor', 'follaje', 'liston', 'papel']
 
 const CAT_COLORS = {
-  flor:    { bg: '#fdf0f4', text: '#8b3a52', border: '#e8b0c0' },
-  follaje: { bg: '#f0f5f0', text: '#3d5a3e', border: '#a8c8a8' },
-  liston:  { bg: '#f5f3e8', text: '#6b5a2e', border: '#d4c080' },
-  papel:   { bg: '#f0f2f5', text: '#3a4a6b', border: '#a0b0d0' },
+  flor:    { bg: '#fdf0f4', text: '#c4687e', border: '#f2c4cf' },
+  follaje: { bg: '#f0f5f2', text: '#4a8060', border: '#a0c8b0' },
+  liston:  { bg: '#fdf5ee', text: '#a06030', border: '#e8c890' },
+  papel:   { bg: '#f0f0f8', text: '#5060a0', border: '#b0b8e0' },
 }
 
 export default function Productos() {
@@ -96,16 +96,20 @@ export default function Productos() {
 
       <div className="filtros">
         {CATEGORIAS.map(cat => (
-          <button key={cat} className={`filtro-btn ${filtro === cat ? 'active' : ''}`} onClick={() => setFiltro(cat)}>
+          <button
+            key={cat}
+            className={`filtro-btn ${filtro === cat ? 'active' : ''}`}
+            onClick={() => setFiltro(cat)}
+          >
             {cat === 'todos' ? 'Todos' : cat.charAt(0).toUpperCase() + cat.slice(1)}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="spinner">Cargando…</div>
+        <div className="spinner">Cargando productos</div>
       ) : productos.length === 0 ? (
-        <div className="empty">No hay productos en esta categoría</div>
+        <div className="empty">No hay productos en esta categoría </div>
       ) : (
         <div className="productos-grid">
           {productos.map(p => {
@@ -114,11 +118,16 @@ export default function Productos() {
             return (
               <div key={p.id_producto} className="producto-card">
                 <div className="card-top">
-                  <span className="cat-badge" style={{ background: col.bg, color: col.text, border: `1px solid ${col.border}` }}>
+                  <span
+                    className="cat-badge"
+                    style={{ background: col.bg, color: col.text, border: `1px solid ${col.border}` }}
+                  >
                     {p.categoria}
                   </span>
                   {p.cantidad <= 20 && (
-                    <span className="stock-warn">{p.cantidad === 0 ? 'Sin stock' : `⚠ ${p.cantidad} uds`}</span>
+                    <span className="stock-warn">
+                      {p.cantidad === 0 ? 'Sin stock' : ` ${p.cantidad}`}
+                    </span>
                   )}
                 </div>
                 <div className="card-body">
@@ -138,8 +147,12 @@ export default function Productos() {
                     {enCarrito ? `En ramo (${enCarrito.cantidad})` : '+ Agregar al ramo'}
                   </button>
                   <div className="card-edit-actions">
-                    <button className="btn btn-secondary btn-sm" onClick={() => { setProductoEditar(p); setShowModal(true) }}>Editar</button>
-                    <button className="btn btn-danger btn-sm" onClick={() => eliminar(p.id_producto)}>Eliminar</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setProductoEditar(p); setShowModal(true) }}>
+                      Editar
+                    </button>
+                    <button className="btn btn-danger btn-sm" onClick={() => eliminar(p.id_producto)}>
+                      Eliminar
+                    </button>
                   </div>
                 </div>
               </div>
@@ -151,7 +164,6 @@ export default function Productos() {
       {carrito.length > 0 && (
         <div className="carrito-fab">
           <button className="carrito-toggle" onClick={() => setShowCarrito(s => !s)}>
-            <span className="carrito-icon">🌿</span>
             <span>{carrito.length} producto{carrito.length > 1 ? 's' : ''}</span>
             <span className="carrito-total">Q{totalCarrito.toFixed(2)}</span>
           </button>
@@ -183,8 +195,11 @@ export default function Productos() {
                   <span>Total</span>
                   <span>Q{totalCarrito.toFixed(2)}</span>
                 </div>
-                <button className="btn btn-gold" style={{ width: '100%' }}
-                  onClick={() => { setShowCarrito(false); setShowCompra(true) }}>
+                <button
+                  className="btn btn-gold"
+                  style={{ width: '100%' }}
+                  onClick={() => { setShowCarrito(false); setShowCompra(true) }}
+                >
                   Comprar
                 </button>
               </div>
@@ -213,7 +228,7 @@ export default function Productos() {
             setShowCompra(false)
             setCarrito([])
             cargarProductos()
-            showToast('¡Venta realizada con éxito!', 'success')
+            showToast('¡Venta realizada!', 'success')
           }}
         />
       )}

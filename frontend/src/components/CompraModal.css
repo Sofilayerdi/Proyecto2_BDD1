@@ -1,0 +1,64 @@
+.compra-resumen {
+  background: linear-gradient(135deg, var(--rose-pale), var(--lav-light));
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(232, 160, 176, 0.2);
+}
+
+.compra-resumen-title {
+  font-size: 11px;
+  color: var(--plum-light);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+.compra-resumen-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(232, 160, 176, 0.2);
+  color: var(--plum);
+}
+
+.compra-resumen-item span:first-child {
+  font-weight: 500;
+}
+
+.compra-resumen-item span:last-child {
+  color: var(--rose-dark);
+  font-weight: 600;
+}
+
+.compra-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 12px;
+}
+
+.compra-total-label {
+  font-weight: 600;
+  color: var(--plum-mid);
+  font-size: 13px;
+}
+
+.compra-total-amount {
+  color: var(--rose-dark);
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-style: italic;
+}
+
+.compra-error {
+  background: #fff0f3;
+  border: 1px solid #f0b0bc;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--error);
+  font-size: 13px;
+  margin-bottom: 8px;
+}

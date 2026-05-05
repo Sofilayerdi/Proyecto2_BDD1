@@ -14,8 +14,8 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./db/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
-      - ./db/vistas.sql:/docker-entrypoint-initdb.d/vistas.sql
       - ./db/registros.sql:/docker-entrypoint-initdb.d/registros.sql
+      - ./db/vistas.sql:/docker-entrypoint-initdb.d/vistas.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
