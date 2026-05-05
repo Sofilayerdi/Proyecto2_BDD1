@@ -1,16 +1,28 @@
 import { useState, useEffect } from 'react'
-import { api } from '../api'
+
+const URL = 'http://localhost:8000'
 
 export default function CompraModal({ carrito, onClose, onComprado }) {
   const [clientes, setClientes] = useState([])
   const [empleados, setEmpleados] = useState([])
-  const [form, setForm] = useState({ id_cliente: '', id_empleado: '', fecha: new Date().toISOString().split('T')[0] })
+  const [form, setForm] = useState({
+    id_cliente: '',
+    id_empleado: '',
+    fecha: new Date().toISOString().split('T')[0]
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    api.getClientes().then(setClientes).catch(() => {})
-    api.getEmpleados().then(setEmpleados).catch(() => {})
+    fetch(`${URL}/clientes`)
+      .then(res => res.json())
+      .then(setClientes)
+      .catch(() => {})
+
+    fetch(`${URL}/empleados`)
+      .then(res => res.json())
+      .then(setEmpleados)
+      .catch(() => {})
   }, [])
 
   const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0)
@@ -20,31 +32,43 @@ export default function CompraModal({ carrito, onClose, onComprado }) {
     setError('')
   }
 
-  const handleComprar = async () => {
+  const handleComprar = () => {
     if (!form.id_cliente || !form.id_empleado || !form.fecha) {
       setError('Todos los campos son requeridos')
       return
     }
     setLoading(true)
     setError('')
-    try {
-      // 1. Crear el ramo con los productos del carrito
-      const ramo = await api.crearRamo({
+
+    // 1. Crear el ramo
+    fetch(`${URL}/ramos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         productos: carrito.map(i => ({ id_producto: i.id_producto, cantidad: i.cantidad }))
       })
-      // 2. Crear la venta con ese ramo
-      await api.crearVenta({
-        id_cliente: parseInt(form.id_cliente),
-        id_empleado: parseInt(form.id_empleado),
-        fecha: form.fecha,
-        ramos: [ramo.id_ramo],
+    })
+      .then(res => {
+        if (!res.ok) return res.text().then(msg => { throw new Error(msg) })
+        return res.json()
       })
-      onComprado()
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+      // 2. Crear la venta con ese ramo
+      .then(ramo => fetch(`${URL}/ventas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_cliente:  parseInt(form.id_cliente),
+          id_empleado: parseInt(form.id_empleado),
+          fecha:       form.fecha,
+          ramos:       [ramo.id_ramo],
+        })
+      }))
+      .then(res => {
+        if (!res.ok) return res.text().then(msg => { throw new Error(msg) })
+        onComprado()
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false))
   }
 
   return (
@@ -54,16 +78,20 @@ export default function CompraModal({ carrito, onClose, onComprado }) {
 
         {/* Resumen del ramo */}
         <div style={{ background: 'var(--cream)', borderRadius: 'var(--radius-sm)', padding: '14px 16px', marginBottom: 20 }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: 'var(--bark-mid)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.6px' }}>Resumen del ramo</p>
+          <p style={{ fontSize: 11, color: 'var(--bark-mid)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+            Resumen del ramo
+          </p>
           {carrito.map(item => (
-            <div key={item.id_producto} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '3px 0', borderBottom: '1px solid var(--cream-dark)' }}>
+            <div key={item.id_producto} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '4px 0', borderBottom: '1px solid var(--cream-dark)' }}>
               <span>{item.nombre} × {item.cantidad}</span>
               <span style={{ color: 'var(--moss)' }}>Q{(item.precio * item.cantidad).toFixed(2)}</span>
             </div>
           ))}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontWeight: 500, fontSize: 15 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontWeight: 500 }}>
             <span>Total</span>
-            <span style={{ color: 'var(--moss-dark)', fontFamily: 'var(--font-display)', fontSize: 18 }}>Q{total.toFixed(2)}</span>
+            <span style={{ color: 'var(--moss-dark)', fontFamily: 'var(--font-display)', fontSize: 20 }}>
+              Q{total.toFixed(2)}
+            </span>
           </div>
         </div>
 

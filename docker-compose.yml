@@ -13,9 +13,9 @@ services:
       - "5435:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./db/ddl.sql:/docker-entrypoint-initdb.d/01_ddl.sql
-      - ./db/vistas.sql:/docker-entrypoint-initdb.d/02_vistas.sql
-      - ./db/registros.sql:/docker-entrypoint-initdb.d/03_registros.sql
+      - ./db/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+      - ./db/vistas.sql:/docker-entrypoint-initdb.d/vistas.sql
+      - ./db/registros.sql:/docker-entrypoint-initdb.d/registros.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
@@ -40,12 +40,9 @@ services:
 
   frontend:
     build: ./frontend
-    container_name: frt_proyecto2
-    restart: always
     ports:
       - "5173:5173"
-    depends_on:
-      - backend
+    command: npm run dev
 
 volumes:
   db_data:
