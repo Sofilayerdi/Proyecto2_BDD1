@@ -126,72 +126,23 @@ func CrearVenta(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := db.DB.Begin()
-	if err != nil {
-		http.Error(w, "Error iniciando transacción", http.StatusInternalServerError)
-		return
-	}
-
-	var existeCliente bool
-	tx.QueryRow(`SELECT EXISTS(SELECT 1 FROM cliente WHERE id_cliente=$1)`,
-		input.IDCliente).Scan(&existeCliente)
-	if !existeCliente {
-		tx.Rollback()
-		http.Error(w, "Cliente no encontrado", http.StatusBadRequest)
-		return
-	}
-
-	var existeEmpleado bool
-	tx.QueryRow(`SELECT EXISTS(SELECT 1 FROM empleado WHERE id_empleado=$1)`,
-		input.IDEmpleado).Scan(&existeEmpleado)
-	if !existeEmpleado {
-		tx.Rollback()
-		http.Error(w, "Empleado no encontrado", http.StatusBadRequest)
-		return
-	}
-
-	var precioTotal float64
-	for _, idRamo := range input.Ramos {
-		var totalRamo float64
-		err := tx.QueryRow(`SELECT total FROM ramo WHERE id_ramo=$1`, idRamo).Scan(&totalRamo)
-		if err == sql.ErrNoRows {
-			tx.Rollback()
-			http.Error(w, "Ramo no encontrado: "+strconv.Itoa(idRamo), http.StatusBadRequest)
-			return
-		} else if err != nil {
-			tx.Rollback()
-			http.Error(w, "Error verificando ramo", http.StatusInternalServerError)
-			return
-		}
-		precioTotal += totalRamo
-	}
-
 	var idVenta int
-	err = tx.QueryRow(`
-		INSERT INTO venta (id_cliente, id_empleado, fecha, precio_total)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id_venta`,
-		input.IDCliente, input.IDEmpleado, input.Fecha, precioTotal).
-		Scan(&idVenta)
+	var precioTotal float64
+	var mensaje string
+
+	err := db.DB.QueryRow(
+		`CALL sp_crear_venta($1, $2, $3, $4, $5, $6, $7)`,
+		input.IDCliente, input.IDEmpleado, input.Fecha, input.Ramos,
+		nil, nil, nil,
+	).Scan(&idVenta, &precioTotal, &mensaje)
+
 	if err != nil {
-		tx.Rollback()
-		http.Error(w, "Error creando venta", http.StatusInternalServerError)
+		http.Error(w, "Error al crear venta: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	for _, idRamo := range input.Ramos {
-		_, err = tx.Exec(`INSERT INTO ramo_venta (id_venta, id_ramo) VALUES ($1, $2)`,
-			idVenta, idRamo)
-		if err != nil {
-			tx.Rollback()
-			http.Error(w, "Error asociando ramo a la venta", http.StatusInternalServerError)
-			return
-		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		tx.Rollback()
-		http.Error(w, "Error confirmando transacción", http.StatusInternalServerError)
+	if mensaje != "Venta creada exitosamente" {
+		http.Error(w, mensaje, http.StatusBadRequest)
 		return
 	}
 

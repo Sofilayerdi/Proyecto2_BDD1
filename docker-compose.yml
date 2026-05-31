@@ -16,6 +16,7 @@ services:
       - ./db/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
       - ./db/registros.sql:/docker-entrypoint-initdb.d/registros.sql
       - ./db/vistas.sql:/docker-entrypoint-initdb.d/vistas.sql
+      - ./db/sp.sql:/docker-entrypoint-initdb.d/sp.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s

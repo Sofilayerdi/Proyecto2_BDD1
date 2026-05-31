@@ -21,14 +21,7 @@ type ProductoVendido struct {
 }
 
 func VentasMensuales(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.DB.Query(`
-		SELECT
-			TO_CHAR(fecha, 'YYYY-MM')   AS mes,
-			COUNT(*)                     AS total_ventas,
-			SUM(precio_total)            AS ingresos
-		FROM venta
-		GROUP BY TO_CHAR(fecha, 'YYYY-MM')
-		ORDER BY mes ASC`)
+	rows, err := db.DB.Query(`SELECT * FROM sp_reporte_ventas_mensuales()`)
 	if err != nil {
 		http.Error(w, "Error en reporte: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -50,19 +43,7 @@ func VentasMensuales(w http.ResponseWriter, r *http.Request) {
 }
 
 func TopProductosVendidos(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.DB.Query(`
-		SELECT
-			p.nombre       AS producto,
-			p.categoria    AS categoria,
-			pr.nombre      AS proveedor,
-			SUM(rp.cantidad) AS total_vendido
-		FROM ramo_producto rp
-		JOIN producto  p  ON rp.id_producto  = p.id_producto
-		JOIN proveedor pr ON p.id_proveedor   = pr.id_proveedor
-		JOIN ramo_venta rv ON rp.id_ramo      = rv.id_ramo
-		GROUP BY p.id_producto, p.nombre, p.categoria, pr.nombre
-		ORDER BY total_vendido DESC
-		LIMIT 20`)
+	rows, err := db.DB.Query(`SELECT * FROM sp_top_productos()`)
 	if err != nil {
 		http.Error(w, "Error en reporte: "+err.Error(), http.StatusInternalServerError)
 		return
