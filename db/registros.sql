@@ -218,3 +218,13 @@ INSERT INTO ramo_venta (id_venta, id_ramo) VALUES
 (23, 23),
 (24, 24),
 (25, 25);
+
+-- password de todos es 'secret' hasheado con bcrypt
+INSERT INTO usuario (username, password, rol, id_empleado) VALUES
+('superadmin1', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'superadmin', NULL),
+('gerente1',    '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'gerente',    1),
+('vendedor1',   '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'vendedor',   2),
+('auditor1',    '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'auditor',    NULL);
+
+INSERT INTO usuario (username, password, rol, id_cliente) VALUES
+('comprador1',  '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'comprador',  1);
