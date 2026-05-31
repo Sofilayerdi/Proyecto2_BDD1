@@ -115,6 +115,7 @@ func VerProducto(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 
+// crear producto con ORM
 func CrearProducto(w http.ResponseWriter, r *http.Request) {
 	var p Producto
 	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
@@ -136,22 +137,27 @@ func CrearProducto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := db.DB.QueryRow(`
-		INSERT INTO producto (nombre, categoria, id_proveedor, cantidad, precio)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id_producto`,
-		p.Nombre, p.Categoria, p.IDProveedor, p.Cantidad, p.Precio).
-		Scan(&p.IDProducto)
-	if err != nil {
-		http.Error(w, "Error al crear producto: "+err.Error(), http.StatusInternalServerError)
+	modelo := db.Producto{
+		Nombre:      p.Nombre,
+		Categoria:   p.Categoria,
+		IDProveedor: p.IDProveedor,
+		Cantidad:    p.Cantidad,
+		Precio:      p.Precio,
+	}
+
+	if result := db.GORM.Create(&modelo); result.Error != nil {
+		http.Error(w, "Error al crear producto: "+result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	p.IDProducto = modelo.IDProducto
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(p)
+
 }
 
+// editar con ORM
 func EditarProducto(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
@@ -179,19 +185,20 @@ func EditarProducto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := db.DB.Exec(`
-		UPDATE producto
-		SET nombre=$1, categoria=$2, id_proveedor=$3, cantidad=$4, precio=$5
-		WHERE id_producto=$6`,
-		p.Nombre, p.Categoria, p.IDProveedor, p.Cantidad, p.Precio, id)
-	if err != nil {
-		http.Error(w, "Error al editar producto", http.StatusInternalServerError)
+	var modelo db.Producto
+	if result := db.GORM.First(&modelo, id); result.Error != nil {
+		http.Error(w, "Producto no encontrado", http.StatusNotFound)
 		return
 	}
 
-	affected, _ := res.RowsAffected()
-	if affected == 0 {
-		http.Error(w, "Producto no encontrado", http.StatusNotFound)
+	if result := db.GORM.Model(&modelo).Updates(db.Producto{
+		Nombre:      p.Nombre,
+		Categoria:   p.Categoria,
+		IDProveedor: p.IDProveedor,
+		Cantidad:    p.Cantidad,
+		Precio:      p.Precio,
+	}); result.Error != nil {
+		http.Error(w, "Error al editar producto", http.StatusInternalServerError)
 		return
 	}
 
@@ -200,6 +207,7 @@ func EditarProducto(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 
+// eliminar con ORM
 func EliminarProducto(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
@@ -207,15 +215,14 @@ func EliminarProducto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := db.DB.Exec(`DELETE FROM producto WHERE id_producto=$1`, id)
-	if err != nil {
-		http.Error(w, "No se puede eliminar: el producto está en uso", http.StatusConflict)
+	var modelo db.Producto
+	if result := db.GORM.First(&modelo, id); result.Error != nil {
+		http.Error(w, "Producto no encontrado", http.StatusNotFound)
 		return
 	}
 
-	affected, _ := res.RowsAffected()
-	if affected == 0 {
-		http.Error(w, "Producto no encontrado", http.StatusNotFound)
+	if result := db.GORM.Delete(&modelo); result.Error != nil {
+		http.Error(w, "Error al eliminar producto", http.StatusInternalServerError)
 		return
 	}
 

@@ -105,6 +105,7 @@ func VerRamo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(rm)
 }
 
+// Crear ramo con GORM
 func CrearRamo(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Productos []RamoProductoItem `json:"productos"`
@@ -118,8 +119,8 @@ func CrearRamo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := db.DB.Begin()
-	if err != nil {
+	tx := db.GORM.Begin()
+	if tx.Error != nil {
 		http.Error(w, "Error iniciando transacción", http.StatusInternalServerError)
 		return
 	}
@@ -132,72 +133,61 @@ func CrearRamo(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var precio float64
-		var stockActual int
-		err := tx.QueryRow(`
-			SELECT precio, cantidad FROM producto WHERE id_producto=$1`,
-			item.IDProducto).Scan(&precio, &stockActual)
-
-		if err == sql.ErrNoRows {
+		var producto db.Producto
+		if result := tx.First(&producto, item.IDProducto); result.Error != nil {
 			tx.Rollback()
 			http.Error(w, "Producto no encontrado: "+strconv.Itoa(item.IDProducto), http.StatusBadRequest)
 			return
-		} else if err != nil {
-			tx.Rollback()
-			http.Error(w, "Error verificando producto", http.StatusInternalServerError)
-			return
 		}
 
-		if stockActual < item.Cantidad {
+		if producto.Cantidad < item.Cantidad {
 			tx.Rollback()
 			http.Error(w,
 				"Stock insuficiente para producto "+strconv.Itoa(item.IDProducto)+
-					" (disponible: "+strconv.Itoa(stockActual)+
+					" (disponible: "+strconv.Itoa(producto.Cantidad)+
 					", solicitado: "+strconv.Itoa(item.Cantidad)+")",
 				http.StatusConflict)
 			return
 		}
 
-		total += precio * float64(item.Cantidad)
+		total += producto.Precio * float64(item.Cantidad)
 	}
 
-	var idRamo int
-	err = tx.QueryRow(`INSERT INTO ramo (total) VALUES ($1) RETURNING id_ramo`, total).
-		Scan(&idRamo)
-	if err != nil {
+	nuevoRamo := db.Ramo{Total: total}
+	if result := tx.Create(&nuevoRamo); result.Error != nil {
 		tx.Rollback()
 		http.Error(w, "Error creando el ramo", http.StatusInternalServerError)
 		return
 	}
 
 	for _, item := range input.Productos {
-		_, err = tx.Exec(`
-			INSERT INTO ramo_producto (id_ramo, id_producto, cantidad)
-			VALUES ($1, $2, $3)`,
-			idRamo, item.IDProducto, item.Cantidad)
-		if err != nil {
+		ramoProducto := db.RamoProducto{
+			IDRamo:     nuevoRamo.IDRamo,
+			IDProducto: item.IDProducto,
+			Cantidad:   item.Cantidad,
+		}
+		if result := tx.Create(&ramoProducto); result.Error != nil {
 			tx.Rollback()
 			http.Error(w, "Error insertando producto en ramo", http.StatusInternalServerError)
 			return
 		}
 
-		_, err = tx.Exec(`
-			UPDATE producto SET cantidad = cantidad - $1 WHERE id_producto = $2`,
-			item.Cantidad, item.IDProducto)
-		if err != nil {
+		if result := tx.Model(&db.Producto{}).
+			Where("id_producto = ?", item.IDProducto).
+			Update("cantidad", db.GORM.Raw("cantidad - ?", item.Cantidad)); result.Error != nil {
 			tx.Rollback()
 			http.Error(w, "Error actualizando stock", http.StatusInternalServerError)
 			return
 		}
 	}
 
-	if err := tx.Commit(); err != nil {
+	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
 		http.Error(w, "Error confirmando transacción", http.StatusInternalServerError)
 		return
 	}
 
-	resp := Ramo{IDRamo: idRamo, Total: total, Productos: input.Productos}
+	resp := Ramo{IDRamo: nuevoRamo.IDRamo, Total: total, Productos: input.Productos}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(resp)
