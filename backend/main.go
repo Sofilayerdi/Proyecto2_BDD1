@@ -14,6 +14,7 @@ import (
 
 func main() {
 	db.InitDB()
+	db.InitDB_ORM()
 	defer db.DB.Close()
 
 	r := chi.NewRouter()
