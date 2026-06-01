@@ -4,13 +4,13 @@
   justify-content: space-between;
   padding: 0 40px;
   height: 68px;
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 1px solid rgba(232, 160, 176, 0.2);
-  box-shadow: 0 2px 20px rgba(180, 80, 120, 0.08);
+  border-bottom: 1px solid var(--cream-dark);
+  box-shadow: 0 2px 20px rgba(14, 14, 14, 0.06);
 }
 
 .navbar-brand {
@@ -24,13 +24,8 @@
   font-size: 24px;
   font-weight: 600;
   font-style: italic;
-  color: var(--rose-dark);
+  color: var(--black);
   letter-spacing: -0.3px;
-}
-
-.brand-name em {
-  color: var(--lavender);
-  font-style: normal;
 }
 
 .navbar-links {
@@ -40,7 +35,7 @@
 
 .navbar-links a {
   text-decoration: none;
-  color: var(--plum-mid);
+  color: var(--black-soft);
   font-size: 13px;
   font-weight: 500;
   padding: 7px 20px;
@@ -50,12 +45,59 @@
 }
 
 .navbar-links a:hover {
-  color: var(--rose-dark);
-  background: var(--rose-pale);
+  color: var(--black);
+  background: var(--lime-pale);
 }
 
 .navbar-links a.active {
-  background: var(--rose-dark);
-  color: white;
-  box-shadow: 0 3px 12px rgba(196, 104, 126, 0.3);
+  background: var(--lime);
+  color: var(--black);
+  font-weight: 700;
+  box-shadow: 0 3px 12px rgba(200, 216, 75, 0.35);
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--black);
+}
+
+.navbar-rol {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 40px;
+  background: var(--lime-pale);
+  color: var(--green-deep);
+  font-weight: 700;
+  text-transform: capitalize;
+  border: 1px solid var(--lime);
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--plum);
+}
+
+.navbar-rol {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 40px;
+  background: var(--rose-pale);
+  color: var(--rose-dark);
+  font-weight: 600;
+  text-transform: capitalize;
+  border: 1px solid var(--rose-light);
 }

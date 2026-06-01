@@ -9,10 +9,10 @@ const URL = 'http://localhost:8000'
 const CATEGORIAS = ['todos', 'flor', 'follaje', 'liston', 'papel']
 
 const CAT_COLORS = {
-  flor:    { bg: '#fdf0f4', text: '#c4687e', border: '#f2c4cf' },
-  follaje: { bg: '#f0f5f2', text: '#4a8060', border: '#a0c8b0' },
-  liston:  { bg: '#fdf5ee', text: '#a06030', border: '#e8c890' },
-  papel:   { bg: '#f0f0f8', text: '#5060a0', border: '#b0b8e0' },
+  flor:    { bg: '#f4f7d6', text: '#2a4a1e', border: '#c8d84b' },
+  follaje: { bg: '#e8f0e0', text: '#2a4a1e', border: '#8ab870' },
+  liston:  { bg: '#fdf3dc', text: '#7a4a10', border: '#e8a030' },
+  papel:   { bg: '#f0f0f0', text: '#2a2a2a', border: '#aaaaaa' },
 }
 
 export default function Productos() {

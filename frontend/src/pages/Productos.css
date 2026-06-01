@@ -13,13 +13,13 @@
 
 .productos-header h1 {
   font-size: 48px;
-  color: var(--rose-dark);
+  color: var(--black);
   font-style: italic;
   line-height: 1;
 }
 
 .subtitle {
-  color: var(--plum-light);
+  color: var(--black-soft);
   font-size: 13px;
   margin-top: 6px;
 }
@@ -36,25 +36,25 @@
   border-radius: 40px;
   border: 1.5px solid var(--cream-dark);
   background: var(--white);
-  color: var(--plum-mid);
+  color: var(--black-soft);
   font-size: 13px;
-  font-family: var(--font-body);
   font-weight: 500;
   transition: all .18s ease;
   cursor: pointer;
 }
 
 .filtro-btn:hover {
-  border-color: var(--rose-light);
-  color: var(--rose-dark);
-  background: var(--rose-pale);
+  border-color: var(--lime);
+  color: var(--black);
+  background: var(--lime-pale);
 }
 
 .filtro-btn.active {
-  background: var(--rose-dark);
-  border-color: var(--rose-dark);
-  color: var(--white);
-  box-shadow: 0 3px 12px rgba(196, 104, 126, 0.25);
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--black);
+  font-weight: 700;
+  box-shadow: 0 3px 12px rgba(200, 216, 75, 0.3);
 }
 
 .productos-grid {
@@ -66,9 +66,8 @@
 .empty {
   text-align: center;
   padding: 80px 20px;
-  font-family: var(--font-display);
   font-size: 24px;
-  color: var(--rose-light);
+  color: var(--cream-dark);
   font-style: italic;
 }
 
@@ -80,12 +79,13 @@
   display: flex;
   flex-direction: column;
   transition: transform .22s ease, box-shadow .22s ease;
-  border: 1px solid rgba(232, 160, 176, 0.15);
+  border: 1px solid var(--cream-dark);
 }
 
 .producto-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
+  border-color: var(--lime);
 }
 
 .card-top {
@@ -97,7 +97,7 @@
 
 .cat-badge {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.7px;
   padding: 4px 12px;
@@ -118,14 +118,14 @@
 .prod-nombre {
   font-family: var(--font-display);
   font-size: 18px;
-  color: var(--plum);
+  color: var(--black);
   margin-bottom: 3px;
   font-style: italic;
 }
 
 .prod-proveedor {
   font-size: 12px;
-  color: var(--plum-light);
+  color: var(--black-soft);
   margin-bottom: 14px;
 }
 
@@ -138,13 +138,13 @@
 .prod-precio {
   font-family: var(--font-display);
   font-size: 24px;
-  color: var(--rose-dark);
+  color: var(--black);
   font-weight: 500;
 }
 
 .prod-stock {
   font-size: 12px;
-  color: var(--plum-light);
+  color: var(--black-soft);
 }
 
 .card-actions {
@@ -158,27 +158,26 @@
   width: 100%;
   padding: 10px;
   border-radius: 40px;
-  border: 1.5px solid var(--rose-light);
-  background: var(--rose-pale);
-  color: var(--rose-dark);
+  border: 1.5px solid var(--lime);
+  background: var(--lime-pale);
+  color: var(--black);
   font-size: 13px;
-  font-family: var(--font-body);
   font-weight: 600;
   transition: all .18s ease;
   cursor: pointer;
 }
 
 .btn-carrito:hover:not(:disabled) {
-  background: var(--rose-dark);
-  color: var(--white);
-  border-color: var(--rose-dark);
-  box-shadow: 0 4px 12px rgba(196, 104, 126, 0.25);
+  background: var(--lime);
+  color: var(--black);
+  border-color: var(--lime);
+  box-shadow: 0 4px 12px rgba(200, 216, 75, 0.35);
 }
 
 .btn-carrito.en-carrito {
-  background: var(--rose-dark);
-  color: var(--white);
-  border-color: var(--rose-dark);
+  background: var(--lime);
+  color: var(--black);
+  border-color: var(--lime);
 }
 
 .btn-carrito:disabled {
@@ -196,6 +195,7 @@
   justify-content: center;
 }
 
+/* Carrito FAB */
 .carrito-fab {
   position: fixed;
   bottom: 32px;
@@ -211,22 +211,23 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: linear-gradient(135deg, var(--rose-dark), var(--lavender));
+  background: var(--black);
   color: var(--white);
   border: none;
   border-radius: 40px;
   padding: 14px 26px;
-  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 6px 24px rgba(196, 104, 126, 0.4);
+  box-shadow: 0 6px 24px rgba(14, 14, 14, 0.35);
   cursor: pointer;
   transition: all .2s ease;
 }
 
 .carrito-toggle:hover {
+  background: var(--lime);
+  color: var(--black);
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(196, 104, 126, 0.45);
+  box-shadow: 0 10px 30px rgba(200, 216, 75, 0.4);
 }
 
 .carrito-icon { font-size: 18px; }
@@ -243,7 +244,7 @@
   box-shadow: var(--shadow-lg);
   width: 320px;
   overflow: hidden;
-  border: 1px solid rgba(232, 160, 176, 0.2);
+  border: 1px solid var(--cream-dark);
 }
 
 .carrito-header {
@@ -251,23 +252,23 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  background: linear-gradient(135deg, var(--rose-dark), var(--lavender));
-  color: var(--white);
+  background: var(--lime);
+  color: var(--black);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .close-btn {
-  background: rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.1);
   border: none;
-  color: white;
+  color: var(--black);
   cursor: pointer;
   font-size: 12px;
   padding: 4px 8px;
   border-radius: 20px;
   transition: background .15s;
 }
-.close-btn:hover { background: rgba(255,255,255,0.35); }
+.close-btn:hover { background: rgba(0,0,0,0.2); }
 
 .carrito-items {
   max-height: 280px;
@@ -286,8 +287,8 @@
   margin-bottom: 6px;
 }
 
-.ci-nombre { font-size: 13px; color: var(--plum); font-weight: 500; }
-.ci-precio { font-size: 13px; color: var(--rose-dark); font-weight: 600; }
+.ci-nombre { font-size: 13px; color: var(--black); font-weight: 500; }
+.ci-precio { font-size: 13px; color: var(--black); font-weight: 700; }
 
 .ci-controls {
   display: flex;
@@ -301,7 +302,7 @@
   border-radius: 50%;
   border: 1.5px solid var(--cream-dark);
   background: var(--cream);
-  color: var(--plum);
+  color: var(--black);
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -310,21 +311,21 @@
   cursor: pointer;
 }
 
-.ci-controls button:hover { background: var(--rose-pale); border-color: var(--rose-light); }
+.ci-controls button:hover { background: var(--lime-pale); border-color: var(--lime); }
 
 .ci-controls span { font-size: 13px; font-weight: 600; min-width: 20px; text-align: center; }
 
 .ci-remove {
   margin-left: auto;
   color: var(--error) !important;
-  border-color: #f0b0bc !important;
+  border-color: #f0b0b0 !important;
 }
-.ci-remove:hover { background: #fff0f3 !important; }
+.ci-remove:hover { background: #fff0f0 !important; }
 
 .carrito-footer {
   padding: 16px 20px;
   border-top: 1px solid var(--cream-mid);
-  background: var(--rose-pale);
+  background: var(--lime-pale);
 }
 
 .carrito-subtotal {
@@ -332,7 +333,7 @@
   justify-content: space-between;
   font-family: var(--font-display);
   font-size: 20px;
-  color: var(--rose-dark);
+  color: var(--black);
   margin-bottom: 14px;
   font-style: italic;
 }
