@@ -41,7 +41,7 @@ cp .env.example .env
 El archivo `.env` debe contener:
 
 ```env
-DB_USER=proy3
+DB_USER=proy2
 DB_PASSWORD=secret
 DB_NAME=proyecto2
 DB_HOST=db
