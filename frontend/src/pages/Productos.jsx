@@ -2,9 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import ProductoModal from '../components/ProductoModal'
 import CompraModal from '../components/CompraModal'
 import { useToast } from '../components/useToast'
+import { apiFetch } from '../utils/api'
 import './Productos.css'
-
-const URL = 'http://localhost:8000'
 
 const CATEGORIAS = ['todos', 'flor', 'follaje', 'liston', 'papel']
 
@@ -29,7 +28,7 @@ export default function Productos() {
   const cargarProductos = useCallback(() => {
     setLoading(true)
     const query = filtro !== 'todos' ? `?categoria=${filtro}&limit=100` : '?limit=100'
-    fetch(`${URL}/productos${query}`)
+    apiFetch(`/productos${query}`)
       .then(res => res.json())
       .then(data => setProductos(data))
       .catch(() => showToast('Error cargando productos', 'error'))
@@ -40,7 +39,7 @@ export default function Productos() {
 
   const eliminar = (id) => {
     if (!confirm('¿Eliminar este producto?')) return
-    fetch(`${URL}/productos/${id}`, { method: 'DELETE' })
+    apiFetch(`/productos/${id}`, { method: 'DELETE' })
       .then(res => {
         if (res.ok) {
           showToast('Producto eliminado')

@@ -221,10 +221,10 @@ INSERT INTO ramo_venta (id_venta, id_ramo) VALUES
 
 -- password de todos es 'secret' hasheado con bcrypt
 INSERT INTO usuario (username, password, rol, id_empleado) VALUES
-('superadmin1', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'superadmin', NULL),
-('gerente1',    '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'gerente',    1),
-('vendedor1',   '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'vendedor',   2),
-('auditor1',    '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'auditor',    NULL);
+('superadmin1', '$2a$10$pPlPyBNRf6zOAIhN6RoPg.10c0qJ2cYukTnMHz73tH8E3h2wwuIHm', 'superadmin', NULL),
+('gerente1',    '$2a$10$pPlPyBNRf6zOAIhN6RoPg.10c0qJ2cYukTnMHz73tH8E3h2wwuIHm', 'gerente',    1),
+('vendedor1',   '$2a$10$pPlPyBNRf6zOAIhN6RoPg.10c0qJ2cYukTnMHz73tH8E3h2wwuIHm', 'vendedor',   2),
+('auditor1',    '$2a$10$pPlPyBNRf6zOAIhN6RoPg.10c0qJ2cYukTnMHz73tH8E3h2wwuIHm', 'auditor',    NULL);
 
 INSERT INTO usuario (username, password, rol, id_cliente) VALUES
-('comprador1',  '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uDgF4irnm', 'comprador',  1);
+('comprador1',  '$2a$10$pPlPyBNRf6zOAIhN6RoPg.10c0qJ2cYukTnMHz73tH8E3h2wwuIHm', 'comprador',  1);

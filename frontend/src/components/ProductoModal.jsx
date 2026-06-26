@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
+import { apiFetch } from '../utils/api'
 import './ProductoModal.css'
 
-const URL = 'http://localhost:8000'
 const CATEGORIAS = ['flor', 'follaje', 'liston', 'papel']
 
 export default function ProductoModal({ producto, onClose, onSaved }) {
@@ -12,7 +12,7 @@ export default function ProductoModal({ producto, onClose, onSaved }) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    fetch(`${URL}/proveedores`)
+    apiFetch(`/proveedores`)
       .then(res => res.json())
       .then(setProveedores)
       .catch(() => {})
@@ -45,10 +45,10 @@ export default function ProductoModal({ producto, onClose, onSaved }) {
       precio:       parseFloat(form.precio),
     }
 
-    const endpoint = esEdicion ? `${URL}/productos/${producto.id_producto}` : `${URL}/productos`
+    const endpoint = esEdicion ? `/productos/${producto.id_producto}` : `/productos`
     const method   = esEdicion ? 'PUT' : 'POST'
 
-    fetch(endpoint, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    apiFetch(endpoint, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       .then(res => {
         if (res.ok) {
           onSaved()

@@ -65,6 +65,14 @@ CREATE TABLE cliente (
     direccion  VARCHAR(200) NOT NULL
 );
 
+CREATE TABLE empleado (
+    id_empleado SERIAL PRIMARY KEY,
+    nombre      VARCHAR(100) NOT NULL,
+    rol         VARCHAR(50)  NOT NULL,
+    telefono    VARCHAR(20)  NOT NULL,
+    correo      VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE usuario (
     id_usuario  SERIAL PRIMARY KEY,
     username    VARCHAR(50) NOT NULL UNIQUE,
@@ -72,14 +80,6 @@ CREATE TABLE usuario (
     rol         VARCHAR(20) NOT NULL CHECK (rol IN ('superadmin','gerente','vendedor','auditor','comprador')),
     id_empleado INT REFERENCES empleado(id_empleado) ON DELETE SET NULL,
     id_cliente  INT REFERENCES cliente(id_cliente) ON DELETE SET NULL
-);
-
-CREATE TABLE empleado (
-    id_empleado SERIAL PRIMARY KEY,
-    nombre      VARCHAR(100) NOT NULL,
-    rol         VARCHAR(50)  NOT NULL,
-    telefono    VARCHAR(20)  NOT NULL,
-    correo      VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE venta (

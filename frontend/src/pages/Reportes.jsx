@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
+import { apiFetch } from '../utils/api'
 import { useToast } from '../components/useToast'
 import './Reportes.css'
-
-const URL = 'http://localhost:8000'
 
 const TABS = [
   { id: 'mensuales', label: 'Ventas mensuales' },
@@ -23,7 +22,7 @@ export default function Reportes() {
   useEffect(() => {
     setData([])
     setLoading(true)
-    fetch(`${URL}${ENDPOINTS[tab]}`)
+    apiFetch(`${ENDPOINTS[tab]}`)
       .then(res => res.json())
       .then(setData)
       .catch(() => showToast('Error cargando reporte', 'error'))

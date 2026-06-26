@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
+import { apiFetch } from '../utils/api'
 import './CompraModal.css'
-
-const URL = 'http://localhost:8000'
 
 export default function CompraModal({ carrito, onClose, onComprado }) {
   const [clientes, setClientes] = useState([])
@@ -15,12 +14,12 @@ export default function CompraModal({ carrito, onClose, onComprado }) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    fetch(`${URL}/clientes`)
+    apiFetch(`/clientes`)
       .then(res => res.json())
       .then(setClientes)
       .catch(() => {})
 
-    fetch(`${URL}/empleados`)
+    apiFetch(`/empleados`)
       .then(res => res.json())
       .then(setEmpleados)
       .catch(() => {})
@@ -41,7 +40,7 @@ export default function CompraModal({ carrito, onClose, onComprado }) {
     setLoading(true)
     setError('')
 
-    fetch(`${URL}/ramos`, {
+    apiFetch(`/ramos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -52,7 +51,7 @@ export default function CompraModal({ carrito, onClose, onComprado }) {
         if (!res.ok) return res.text().then(msg => { throw new Error(msg) })
         return res.json()
       })
-      .then(ramo => fetch(`${URL}/ventas`, {
+      .then(ramo => apiFetch(`/ventas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
